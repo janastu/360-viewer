@@ -21,23 +21,23 @@
  *
  */
 //todo: make cross-origin images available to load.
-
 //clean up code
 //test
 //support  for cubic images
+//add video
+//generate url to share
+//load image based on url
+//add more functinality to url like storing camera rotation, zoom level, leave a marker or a note.
+
 
 
 (function (world) {
   "use strict";
      
 var domEvents;
-  var sceneNo, defaultData, sceneNum = 0, trans_obj, mouse = new THREE.Vector2(), rotSpeed = 0.1, s1,s2,s3,s4, philly, philly_object, esg_library, esg_map;
- 
-  var Eskybox, EskyboxFlag = 0;
-//gui = new dat.GUI();
-  world.scene = {};
-  // list of panoramas available in the world
- 
+var sceneNo, sceneNum = 0, mouse = new THREE.Vector2(), rotSpeed = 0.1;
+var Eskybox, EskyboxFlag = 0;
+world.scene = {};
   
   function bind(scope, func) {
     return function bound() {
@@ -55,19 +55,10 @@ var domEvents;
 //Loading Default Position values for objects
 var camPos  = [
     new THREE.Vector3(0,0,0)
-    //new THREE.Vector3(),
-  ],
-  
-  SpanoOffset = [
+ ],
+ SpanoOffset = [
      new THREE.Vector3(-3.1515,5.569,-0.00999999999999999)
   ];
-  
-  
-   
-    
-    
-   
-  
   
 //  #### ##    ## #### ######## 
 //   ##  ###   ##  ##     ##    
@@ -99,7 +90,7 @@ var camPos  = [
   this.renderer.setSize(window.innerWidth, window.innerHeight);
   document.getElementById('container').appendChild(this.renderer.domElement);
  
-   domEvents   = new THREEx.DomEvents(this.cam, this.renderer.domElement);
+  
   // Camera Controls initialization
   this.controls = new THREE.OrbitControls(this.cam, this.renderer.domElement);
   //this.controls.enabled = false;
@@ -128,11 +119,7 @@ var camPos  = [
     Eskybox = 'panoramas/default.jpg';  
     }
     else {}
-    
-  // Eskybox = 'http://pantoto.net/panoramas/raw/esgshoot8-6-16/16gb%20sdcard/1/1_a.jpg';
-     this.makeSphericalPano();
-     
-    
+    this.makeSphericalPano();
     this.cam.position.set(camPos[sceneNo].x,
                           camPos[sceneNo].y,
                           camPos[sceneNo].z);
@@ -145,8 +132,6 @@ var camPos  = [
     // attach event handlers
    
     this.renderer.domElement.addEventListener('mousewheel',bind(this, this.eventHandlers.onDocumentMouseWheel), false);
-    //this.renderer.domElement.addEventListener('mousedown',bind(this,this.eventHandlers.onClick),false);
-  // this.renderer.domElement.addEventListener('mousemove',bind(this,this.eventHandlers.onMouseMove),false);
     window.addEventListener('keydown',bind(this, this.eventHandlers.onKeydown), false);
     window.addEventListener('resize',bind(this, this.eventHandlers.onWindowResize),false);
     document.addEventListener( 'dragover',bind(this, this.eventHandlers.onDragOver),false);
@@ -176,28 +161,10 @@ var camPos  = [
   };
 
   world.render = function () {
-    if (sceneNum !== sceneNo) {
-      sceneNo = sceneNum;
-      
-      this.updateScene();
-    }
-    
-  this.cam.rotation.x+=0.001;
     this.renderer.render(this.scene, this.cam);
-    
-  
   };
   
-//   #######  ########      #######  ########        ## ########  ######  ########  ######  
-//  ##     ## ##     ##    ##     ## ##     ##       ## ##       ##    ##    ##    ##    ## 
-//         ## ##     ##    ##     ## ##     ##       ## ##       ##          ##    ##       
-//   #######  ##     ##    ##     ## ########        ## ######   ##          ##     ######  
-//         ## ##     ##    ##     ## ##     ## ##    ## ##       ##          ##          ## 
-//  ##     ## ##     ##    ##     ## ##     ## ##    ## ##       ##    ##    ##    ##    ## 
-//   #######  ########      #######  ########   ######  ########  ######     ##     ######  
-  /* Functions to draw different kinds of objects/system in the scene */
-  
-  
+
   world.changePano = function () {
     var preString = "../../"
     var temp = document.getElementById('panourl').value;
@@ -218,6 +185,15 @@ var camPos  = [
 	}*/
  };
  
+//  ##     ## ####    ######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######  
+//  ##     ##  ##     ##       ##     ## ###   ## ##    ##    ##     ##  ##     ## ###   ## ##    ## 
+//  ##     ##  ##     ##       ##     ## ####  ## ##          ##     ##  ##     ## ####  ## ##       
+//  ##     ##  ##     ######   ##     ## ## ## ## ##          ##     ##  ##     ## ## ## ##  ######  
+//  ##     ##  ##     ##       ##     ## ##  #### ##          ##     ##  ##     ## ##  ####       ## 
+//  ##     ##  ##     ##       ##     ## ##   ### ##    ##    ##     ##  ##     ## ##   ### ##    ## 
+//   #######  ####    ##        #######  ##    ##  ######     ##    ####  #######  ##    ##  ######  
+// 
+  
   world.zoom = function (x) {
     if (this.cam.fov >=20 && this.cam.fov <=85 ) {
     if (x == 0) {
@@ -271,11 +247,9 @@ console.log(requestMethod);
         if (wscript !== null) {
             wscript.SendKeys("{F11}");
         }
-      
-      //document.webkitCancelFullScreen();
+      }
     }
-    }
- };
+  };
  
   world.autoRotate = function (x) {
     if (x == 0) {
@@ -292,13 +266,6 @@ console.log(requestMethod);
   };
   
   
-    
-    
-    
-
- 
-
-  
 //   ######  ##    ## ##    ## ########   #######  ##     ## 
 //  ##    ## ##   ##   ##  ##  ##     ## ##     ##  ##   ##  
 //  ##       ##  ##     ####   ##     ## ##     ##   ## ##   
@@ -307,7 +274,7 @@ console.log(requestMethod);
 //  ##    ## ##   ##     ##    ##     ## ##     ##  ##   ##  
 //   ######  ##    ##    ##    ########   #######  ##     ##
 // Cubic Panorama function
-  world.makeSkyBox = function () {
+  /*world.makeSkyBox = function () {
     var url=['panoramas/' + this.currentSkybox + '/posx.jpg',
 	    'panoramas/' + this.currentSkybox + '/negx.jpg',
 	    'panoramas/' + this.currentSkybox + '/posy.jpg',
@@ -347,32 +314,32 @@ console.log(requestMethod);
       this.scene.remove(panos[0]);
       this.scene.add(this.panoMesh);
     }
-  };
+  }; */
   
   world.makeSphericalPano = function () {
     
     var spheretexture = new THREE.TextureLoader().load(Eskybox);
-    var geometry3 = new THREE.SphereGeometry(20000,50,50)
-    geometry3.applyMatrix( new THREE.Matrix4().makeScale( 1, -1, 1 ) );
-    this.sphere1 = new THREE.Mesh(geometry3, new THREE.MeshBasicMaterial({map:spheretexture, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 140}));
-    this.sphere1.position.set(camPos[sceneNo].x, camPos[sceneNo].y, camPos[sceneNo].z);
-    this.scene.add(this.sphere1);
-    this.sphere1.name = 'sphere1';
-    this.sphere1.rotation.set(SpanoOffset[sceneNo].x, SpanoOffset[sceneNo].y, SpanoOffset[sceneNo].z);
-      var Spanos = this.scene.children.filter(function(item) {
-          return item.name == 'sphere1';
+    var Sgeometry = new THREE.SphereGeometry(20000,50,50)
+    Sgeometry.applyMatrix( new THREE.Matrix4().makeScale( 1, -1, 1 ) );
+    this.sphere = new THREE.Mesh(Sgeometry, new THREE.MeshBasicMaterial({map:spheretexture, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 140}));
+    this.sphere.position.set(camPos[sceneNo].x, camPos[sceneNo].y, camPos[sceneNo].z);
+    this.scene.add(this.sphere);
+    this.sphere.name = 'sphere';
+    this.sphere.rotation.set(SpanoOffset[sceneNo].x, SpanoOffset[sceneNo].y, SpanoOffset[sceneNo].z);
+    var Spanos = this.scene.children.filter(function(item) {
+          return item.name == 'sphere';
     });
     if(Spanos.length == 0) {
-      this.scene.add(this.sphere1);
+      this.scene.add(this.sphere);
     }
     else {
       this.scene.remove(Spanos[0]);
-      this.scene.add(this.sphere1);
+      this.scene.add(this.sphere);
     }
 	    
 	    };
 
-  trans_obj = ['foobar', 'a farewell to arms', 'bag', 'book3'];
+
   
 //  ######## ##     ## ######## ##    ## ########  ######  
 //  ##       ##     ## ##       ###   ##    ##    ##    ## 
@@ -423,56 +390,18 @@ console.log(requestMethod);
       var intersects = raycaster.intersectObjects( this.scene.children );
       if ( intersects.length > 0 ) {
 	for (var i = 0; i < intersects.length; i++) {
-	  //for (var j = 0; j < trans_obj.length; j++) {
-	    if (intersects[i].object.name === 'philly_object') {
-	      console.log(intersects[i].object.name);
-	      this.controls.enabled = false;
-	      this.trans_control.attach(intersects[i].object);
-	      this.trans_control.enabled = true;
-	      //display some help info
-	      info = '<small>Keys | t : translate | y : scale |' +
-	      ' r : rotate | u : quit </small>';
-	      document.getElementById('info').innerHTML = info;
-	      
-	    //}
-	    }
-	    for(var k=0; k< world.hotspots.length; k++)
-	    { var name = 'hs'+k;
-		if (intersects[i].object.name == name){
-		  
-		sceneNum = k;
-		info = 'This is '+ k + ' Pano';
-		
-		document.getElementById('info').innerHTML = info;
-	      }
-	    }
-	 
-	} 
+	    //if (intersects[i].object.name === 'philly_object') {
+	      //do something
+	}
       }
+	 
     },
     
     
     onKeydown: function (event) {
       
-      var variable = this.sphere1.rotation;
+      var variable = this.sphere.rotation;
       switch (event.keyCode) {
-	
-	case 85: // U
-	  this.trans_control.enabled = false;
-	  this.controls.enabled = true;
-	  // is there something to detach this object? confirm it
-	  this.trans_control.detach(this.trans_control.object);
-	  document.getElementById('info').innerHTML = '';
-	  break;
-	case 82: // R
-	  this.trans_control.setMode("rotate");
-	  break;
-	case 89: // Y
-	  this.trans_control.setMode("scale");
-	  break;
-	case 84: // T
-	  this.trans_control.setMode("translate");
-	  break;
 	//for rotation of panorama sphere
 	case 65: // A
 	  variable.x-=rotSpeed;
@@ -498,67 +427,12 @@ console.log(requestMethod);
 	  
 	  variable.z-=rotSpeed;
 	  document.getElementById('info').innerHTML = 'rotation is' +variable.x +',' +variable.y+','+variable.z;
-
-//document.webkitExitFullscreen()
-//document.webkitCancelFullScreen();
-//document.mozCancelFullScreen();
-//console.log('s');
-         
-        
-
 	  break;
 	case 90: //Z
-	 // rotSpeed = 0.1;
-	 //
-	/* var element = document.getElementById('container');
-    // Supports most browsers and their versions.
-    var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
-console.log(requestMethod);
-    if (requestMethod) { // Native full screen.
-        requestMethod.call(element);
-    } else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
-        var wscript = new ActiveXObject("WScript.Shell");
-        if (wscript !== null) {
-            wscript.SendKeys("{F11}");
-        }
-    }
-
-	 var el = document;
-            var requestMethod = el.cancelFullScreen||el.webkitExitFullScreen||el.mozCancelFullScreen||el.exitFullscreen;
-            
-               if (requestMethod) { // cancel full screen.
-		
-                requestMethod.call(el);
-		console.log(requestMethod);
-		
-            } else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
-                var wscript = new ActiveXObject("WScript.Shell");
-                if (wscript !== null) {
-                    wscript.SendKeys("{F11}");
-                }
-            }
-       
-	document.mozCancelFullScreen();
-	console.log('s');
-
- */
-	//document.getElementById('container').webkitRequestFullScreen();
-	this.controls.enabled = false;
-	      this.trans_control.attach(this.philly_selector);
-	      this.trans_control.enabled = true;
-	      //display some help info
-	     /* info = '<small>Keys | t : translate | y : scale |' +
-	      ' r : rotate | u : quit </small>';
-	      document.getElementById('info').innerHTML = info;*/
-	      
-
-
-	
-  
-
+	 rotSpeed = 0.1;
 	  break;
 	case 88: //X
-	  rotSpeed = 0.01;
+	  rotSpeed = 0.003;
 	  break;
 	  
 	    
@@ -589,7 +463,7 @@ console.log(requestMethod);
       var reader = new FileReader();
       reader.onload = function ( event ) {
       var x = event.target.result;
-       world.sphere1.material.map = new THREE.TextureLoader().load(x);
+       world.sphere.material.map = new THREE.TextureLoader().load(x);
 					}
       reader.readAsDataURL(file);
 				
