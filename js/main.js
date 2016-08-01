@@ -26,8 +26,13 @@
 //support  for cubic images
 //add video
 //generate url to share
-//load image based on url
+//load image based on url issue-https://github.com/mrdoob/three.js/issues/776
 //add more functinality to url like storing camera rotation, zoom level, leave a marker or a note.
+//loading screen
+
+//bug: fullscreen removes content after hash.
+//url : browse images = cute file browser
+//loading panos cached image = manually.
 
 
 
@@ -36,7 +41,13 @@
      
 var domEvents;
 var sceneNo, sceneNum = 0, mouse = new THREE.Vector2(), rotSpeed = 0.1;
-var Eskybox, EskyboxFlag = 0;
+
+var tempUrl;
+var manager;
+window.spheretexture = 0;
+
+window.EskyboxFlag = 0;
+window.Eskybox = 0;
 world.scene = {};
   
   function bind(scope, func) {
@@ -81,7 +92,7 @@ var camPos  = [
   this.cam = new THREE.PerspectiveCamera(fov, aspect_ratio, near, far);
   // Renderer Initialization
   if (Detector.webgl) {
-    this.renderer = new THREE.WebGLRenderer({antialias: true});
+    this.renderer = new THREE.WebGLRenderer();
   }
   else {
     document.getElementById('container').innerHTML = '<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><h1>You need a WebGL enabled browser to proceed.</h1>';
@@ -99,28 +110,7 @@ var camPos  = [
   
   this.scene = new THREE.Scene();
   
-  this.updateScene();
- 
-  
-  
-  };
-  
-//  ##     ## ########  ########     ###    ######## ######## 
-//  ##     ## ##     ## ##     ##   ## ##      ##    ##       
-//  ##     ## ##     ## ##     ##  ##   ##     ##    ##       
-//  ##     ## ########  ##     ## ##     ##    ##    ######   
-//  ##     ## ##        ##     ## #########    ##    ##       
-//  ##     ## ##        ##     ## ##     ##    ##    ##       
-//   #######  ##        ########  ##     ##    ##    ########
-
-// This is run everytime the scene has to change.
-  world.updateScene = function () {
-    if (EskyboxFlag == 0) {
-    Eskybox = 'panoramas/default.jpg';  
-    }
-    else {}
-    this.makeSphericalPano();
-    this.cam.position.set(camPos[sceneNo].x,
+  this.cam.position.set(camPos[sceneNo].x,
                           camPos[sceneNo].y,
                           camPos[sceneNo].z);
     this.cam.updateProjectionMatrix;
@@ -136,8 +126,43 @@ var camPos  = [
     window.addEventListener('resize',bind(this, this.eventHandlers.onWindowResize),false);
     document.addEventListener( 'dragover',bind(this, this.eventHandlers.onDragOver),false);
     document.addEventListener( 'dragleave',bind(this, this.eventHandlers.onDragLeave),false);
-    document.addEventListener( 'drop',bind(this, this.eventHandlers.onDrop),false);		      
-		
+    document.addEventListener( 'drop',bind(this, this.eventHandlers.onDrop),false);
+    
+    var iframe = document.getElementById('iframe');
+    iframe.contentDocument.addEventListener ('click', bind(this, this.eventHandlers.onIClick), false);
+
+    //manager
+    /*manager = new THREE.Default	LoadingManager();
+    manager.onProgress = function ( item, loaded, total ) {
+    console.log( item, loaded, total );
+};
+  */
+  this.updateScene();
+ this.readUrl();
+  };
+ 
+//  ##     ## ########  ########     ###    ######## ######## 
+//  ##     ## ##     ## ##     ##   ## ##      ##    ##       
+//  ##     ## ##     ## ##     ##  ##   ##     ##    ##       
+//  ##     ## ########  ##     ## ##     ##    ##    ######   
+//  ##     ## ##        ##     ## #########    ##    ##       
+//  ##     ## ##        ##     ## ##     ##    ##    ##       
+//   #######  ##        ########  ##     ##    ##    ########
+
+// This is run everytime the scene has to change.
+
+  world.updateScene = function () {
+     if (EskyboxFlag == 0) {
+//    spheretexture = new THREE.TextureLoader().load('panoramas/default.jpg' );
+    spheretexture = new THREE.TextureLoader().load('panoramas/default.jpg' );
+    this.makeSphericalPano(spheretexture);
+    }
+    else {
+    spheretexture = new THREE.TextureLoader().load('../../'+Eskybox);
+    this.makeSphericalPano(spheretexture);
+    }
+    
+    		
     // action!
     this.animate.apply(this, arguments);
     
@@ -165,25 +190,32 @@ var camPos  = [
   };
   
 
-  world.changePano = function () {
-    var preString = "../../"
-    var temp = document.getElementById('panourl').value;
-    var res = preString.concat(temp);
-    
+  world.readUrl = function () {
+    var url = window.location.hash;
+    tempUrl = url;  
+    if (url == 0) {
+      //do nothing
+    }
+    else{
+     world.changePano(url);
+     console.log(url);
+    }
+  };
+  
+  world.changePano = function (x) {
+    var res = x.split('#&q=?http://pantoto.net/');
     EskyboxFlag = 1;
-    Eskybox = res;
+    Eskybox = res[1];
+    console.log(Eskybox);
     world.updateScene();
-   /* var xhttp = new XMLHttpRequest();
+    };
     
-	xhttp.addEventListener("load", onLoad);
-	xhttp.open("GET", "https://assets.rocketstock.com/uploads/ready-2-equi-1024x598.png", true);
-	xhttp.setRequestHeader('Access-Control-Allow-Headers', '*');
-	xhttp.send();
-	
-	function onLoad(){
-		console.log('done');
-	}*/
- };
+    world.hashCheck = function () {
+      console.log(window.location.hash);
+      window.location.hash = tempUrl;
+      console.log(window.location.hash);
+      
+      };
  
 //  ##     ## ####    ######## ##     ## ##    ##  ######  ######## ####  #######  ##    ##  ######  
 //  ##     ##  ##     ##       ##     ## ###   ## ##    ##    ##     ##  ##     ## ###   ## ##    ## 
@@ -233,11 +265,13 @@ console.log(requestMethod);
     }
     }
     else if (x == 1) {
+
+     
       document.getElementById('resizef').style.visibility = 'visible';
       document.getElementById('resizes').style.visibility = 'hidden';
       var element = document;
       var requestMethod = element.cancelFullScreen||element.webkitCancelFullScreen||element.mozCancelFullScreen||element.exitFullscreen;
-      console.log(requestMethod);
+      //console.log(requestMethod);
        if (requestMethod) { 
 	// Native full screen.
         requestMethod.call(element);
@@ -248,7 +282,9 @@ console.log(requestMethod);
             wscript.SendKeys("{F11}");
         }
       }
+       world.hashCheck();
     }
+    
   };
  
   world.autoRotate = function (x) {
@@ -316,12 +352,12 @@ console.log(requestMethod);
     }
   }; */
   
-  world.makeSphericalPano = function () {
+  world.makeSphericalPano = function (texture) {
+   
     
-    var spheretexture = new THREE.TextureLoader().load(Eskybox);
     var Sgeometry = new THREE.SphereGeometry(20000,50,50)
     Sgeometry.applyMatrix( new THREE.Matrix4().makeScale( 1, -1, 1 ) );
-    this.sphere = new THREE.Mesh(Sgeometry, new THREE.MeshBasicMaterial({map:spheretexture, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 140}));
+    this.sphere = new THREE.Mesh(Sgeometry, new THREE.MeshBasicMaterial({map:texture, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 140}));
     this.sphere.position.set(camPos[sceneNo].x, camPos[sceneNo].y, camPos[sceneNo].z);
     this.scene.add(this.sphere);
     this.sphere.name = 'sphere';
@@ -395,6 +431,12 @@ console.log(requestMethod);
 	}
       }
 	 
+    },
+    onIClick: function (event) {
+      //event.preventDefault();
+      if(this.tagName == 'a'){
+    alert("It's a div!");}
+    else{console.log(document.getElementById("iframe").contentWindow.location.href);}
     },
     
     
