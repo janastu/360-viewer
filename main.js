@@ -125,7 +125,15 @@ var camPos  = [
     document.addEventListener( 'dragleave',bind(this, this.eventHandlers.onDragLeave),false);
     document.addEventListener( 'drop',bind(this, this.eventHandlers.onDrop),false);
     
-    
+    var iframe = document.getElementById('iframe');
+    iframe.contentDocument.addEventListener ('click', bind(this, this.eventHandlers.onIClick), false);
+
+    //manager
+    manager = new THREE.LoadingManager();
+    manager.onProgress = function ( item, loaded, total ) {
+    console.log( item, loaded, total );
+};
+  
   this.updateScene();
  this.readUrl();
   };
@@ -141,7 +149,7 @@ var camPos  = [
 // This is run everytime the scene has to change.
 
   world.updateScene = function () {
-
+    this.loadingScreen();
     this.makeSphericalPano();
     		
     // action!
@@ -332,24 +340,24 @@ console.log(requestMethod);
       this.scene.add(this.panoMesh);
     }
   }; */
-  
+   world.loadingScreen = function () {
+    this.loadingTexture = new THREE.TextureLoader().load('images/loading.jpg');
+    this.screen = new THREE.Mesh(new THREE.BoxGeometry(0.8,360,640), new THREE.MeshBasicMaterial());
+    this.screen.material.needsUpdate = true;
+    this.screen.position.set(-900,0,0);
+    this.scene.add(this.screen);
+   };
   world.makeSphericalPano = function () {
-   
       if (EskyboxFlag == 0) {
  //   var spheretexture = new THREE.TextureLoader(manager).load('panoramas/default.jpg');
 var spheretexture = new THREE.TextureLoader().load('panoramas/default.jpg');
 		}
     else {
-      var loadingTexture = new THREE.TextureLoader().load('images/loading.jpg');
-    var screen = new THREE.Mesh(new THREE.BoxGeometry(0.8,360,640), new THREE.MeshBasicMaterial({map: loadingTexture}));
-   //screen.material.needsUpdate = true;
-    screen.position.set(-900,0,0);
-    this.scene.add(screen);
-    
     var spheretexture = new THREE.TextureLoader().load('../../'+Eskybox, function ( texture ) {
-	screen.visible=false;
-	screen.material.needsUpdate = true;
-} );
+	world.screen.visible=false;
+	world.screen.material.needsUpdate = true;
+console.log(world.screen);
+	} );
     }
     
     var Sgeometry = new THREE.SphereGeometry(20000,50,50)

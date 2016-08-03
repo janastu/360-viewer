@@ -65,6 +65,7 @@
 	position: absolute;
 	visibility: hidden;
     }
+   
 </style>
 </head>
 <body>
@@ -78,7 +79,7 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
        <ul class="nav navbar-nav navbar-right">
-        <li><a href="#" data-toggle="modal" data-target="#loadPano">Load Panorama</a></li>
+        
 	<li><a href="#" data-toggle="modal" data-target="#myModal">Help</a></li>
        </ul>
     </div>
@@ -104,33 +105,10 @@
   </div>
 </div>
 		
-<!-- loadpano modal -->
-<div class="modal fade" id="loadPano" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Load Panorama</h4>
-      </div>
-      <div class="modal-body">
-        <h5>Enter the url of the panorama(equirectangular image) you want to view. <br> Choose from: <a href="http://pantoto.net/panoramas/" target="_blank">these panoramas </a><br>
-	The url structure should be panormas/imagename.jpg<br>
-	Alternatively, you can drag and drop an image from your desktop.</h5>
-	<input type='text' id='panourl'></input>
-	<button type="button" class="btn btn-primary" onclick='world.changePano()'>Load Panorama</button>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-    </div>
-  </div>
-</div>
 		 
 <div id='container'>
-</div>
 
-<div id="info">
-</div>
+
 
 <!--resize-->
 <a href="#" class="btn btn-default btn-sm" id="resizef" onclick='world.fullScreen(0)'><span class="glyphicon glyphicon-resize-full"></span> </a>
@@ -141,7 +119,9 @@
 <!--auto rotate-->
 <a href="#" class="btn btn-default btn-sm" id="autorotateplay" onclick='world.autoRotate(0)'><span class="glyphicon glyphicon-play"></span> </a>
 <a href="#" class="btn btn-default btn-sm" id="autorotatepause" onclick='world.autoRotate(1)'><span class="glyphicon glyphicon-pause"></span> </a>
-    
+    </div>
+
+</div>
 <script>
       window.world = window.world || {};
       window.onload = function() {
@@ -150,7 +130,7 @@
 </script>
            
 	  <!-- javascript graphics library -->
-	  <script src="js/lib/three.min-r77.js"></script>
+	  <script src="js/lib/three.min-r79.js"></script>
 	  <!-- to check if your browser supports webgl -->
 	  <script src="js/lib/Detector.js"></script>
 	  <!-- mouse controls to rotate around a fixed axis-->
